@@ -13,7 +13,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Derya Hancock <deryahancock@knights.ucf.edu>, Jerasimos Strakosha <jstrakosha@knights.ucf.edu>, Richard Zarth <rlziii@knights.ucf.edu>");
 MODULE_DESCRIPTION("A simple character-mode device driver");
-MODULE_VERSION("1.0");
+MODULE_VERSION("2.0");
 
 /* FUNCTION PROTOTYPES */
 int int_module(void);
