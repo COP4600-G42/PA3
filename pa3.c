@@ -25,14 +25,13 @@ static int dev_release(struct inode *, struct file *);
 
 /* GLOBAL VARIABLES */
 static int majorNumber;
-static int numberOfOpens = 0;
-static char message[BUFFER_LENGTH] = {0};
-static char receivedMessage[BUFFER_LENGTH] = {0};
-//static short messageSize;
 static struct class *pa3Class = NULL;
 static struct device *pa3Device = NULL;
-static DEFINE_MUTEX(pa3_mutex);
+static int numberOfOpens = 0;
 static int messageLen;
+static char message[BUFFER_LENGTH] = {0};
+static char receivedMessage[BUFFER_LENGTH] = {0};
+static DEFINE_MUTEX(pa3_mutex);
 
 static struct file_operations fops =
 {
@@ -62,6 +61,7 @@ int init_module(void)
     if (IS_ERR(pa3Class))
     {
         unregister_chrdev(majorNumber, DEVICE_NAME);
+
         printk(KERN_ALERT "PA3: Failed to register a class.\n");
 
         return PTR_ERR(pa3Class);
@@ -75,6 +75,7 @@ int init_module(void)
     {
         class_destroy(pa3Class);
         unregister_chrdev(majorNumber, DEVICE_NAME);
+
         printk(KERN_ALERT "PA3: Failed to create device.\n");
 
         return PTR_ERR(pa3Device);
@@ -120,8 +121,8 @@ static int dev_open(struct inode *inodep, struct file *filep)
 static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset)
 {
     int errorCount = 0;
-    int i= 0;
-    int stringLen= messageLen;
+    int i = 0;
+    int stringLen = messageLen;
 
     printk(KERN_INFO "\nPA3: READ Full string: %s\n", message);
 
@@ -129,9 +130,9 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
     // Then reduce the read length to the maximum available
     // Else use the requested read length
 
-    if (len>messageLen)
+    if (len > messageLen)
     {
-        len= messageLen;
+        len = messageLen;
     }
 
     errorCount = copy_to_user(buffer, message, len);
@@ -139,11 +140,11 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
      while (stringLen > 0)
      {
         message[i] = message[i + len];
-        i = i + 1;
+        i++;
         stringLen--;
      }
 
-    //Reduce the message lenght each time we read
+    // Reduce the message lenght each time we read
     messageLen -= len;
 
     if (errorCount == 0)
@@ -163,7 +164,7 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
 static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset)
 {
     int errorCount = 0;
-    int j = 0;
+    int i = 0;
     int startLen = messageLen;
 
 
@@ -172,28 +173,29 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
     // If the requested write length is more than the available space
     // Then reduce the write length to the maximum available
     // Else use the requested write length
-    if  ((len+ messageLen) > BUFFER_LENGTH)
+    if  ((len + messageLen) > BUFFER_LENGTH)
     {
-        len= BUFFER_LENGTH- messageLen;
-        messageLen=BUFFER_LENGTH;
+        len = BUFFER_LENGTH - messageLen;
+        messageLen = BUFFER_LENGTH;
     } else {
-        messageLen= messageLen + len;
+        messageLen += len;
     }
 
     errorCount = copy_from_user(receivedMessage, buffer, len);
 
-   printk(KERN_INFO"PA3: before the loop j=%d, startLen=%d, len=%d, messageLen=%d",j,startLen,len,messageLen);
+    printk(KERN_INFO"PA3: before the loop i = %d, startLen = %d, len = %d, messageLen = %d\n", i, startLen, len, messageLen);
 
-   for (j=0; j<len ;j++)
+    for (i = 0; i < len; i++)
     {
         // Before writing check again if where we are writing is not bigger than the buffer
         if (startLen > BUFFER_LENGTH)
         {
+            // Get out of the for loop
             break;
-        } else {
-            message[startLen] = receivedMessage[j];
-            startLen++;
         }
+
+        message[startLen] = receivedMessage[i];
+        startLen++;
     }
 
     printk(KERN_INFO "PA3: Received %zu characters from the user.\n", len);
