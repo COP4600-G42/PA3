@@ -1,4 +1,5 @@
-obj-m += pa3.o
+obj-m += pa3_input.o
+obj-m += pa3_output.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(shell pwd) modules
