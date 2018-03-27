@@ -45,7 +45,7 @@ static struct file_operations fops =
 
 int init_module(void)
 {
-    printk(KERN_INFO "PA3 INPUT: Initializing module.\n");
+    printk(KERN_INFO "PA3  INPUT: Initializing module.\n");
 
     majorNumber = register_chrdev(0, DEVICE_NAME, &fops);
 
