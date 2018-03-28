@@ -14,6 +14,10 @@ int main(void)
     char *stringToSend, *messageLength, *message;
     char *ptr;
 
+    stringToSend  = NULL;
+    messageLength = NULL;
+    message       = NULL;
+
     stringToSend  = malloc(sizeof(char) * BUFFER_LENGTH);
     messageLength = malloc(sizeof(char) * BUFFER_LENGTH);
 
@@ -75,6 +79,7 @@ int main(void)
                 printf("TESTPA3: %s\n", message);
 
                 free(message);
+                message = NULL;
 
                 break;
             case 'q':
@@ -87,8 +92,8 @@ int main(void)
         }
     } while (inputChoice != 'Q' && inputChoice != 'q');
 
-    free(stringToSend);
-    free(messageLength);
+    // free(stringToSend);
+    // free(messageLength);
 
     if (message != NULL)
     {
