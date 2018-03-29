@@ -7,10 +7,64 @@
 
 #define BUFFER_LENGTH 1024
 
+int deviceRead(char *message, char *messageLength)
+{
+    int outputDevice = open("/dev/pa3_output", O_RDWR);
+    int returnValue, receiveLength;
+
+    if (outputDevice < 0)
+    {
+        perror("TESTPA3: Failed to open the output device.\n");
+
+        return errno;
+    }
+
+    message = calloc(BUFFER_LENGTH, sizeof(char));
+
+    printf("TESTPA3: How many bytes would you like to read?\n");
+    printf("TESTPA3: %s\n", message);
+    printf("TESTPA3: ");
+
+    fgets(messageLength, BUFFER_LENGTH, stdin);
+    receiveLength = atoi(messageLength);
+
+    returnValue = read(outputDevice, message, receiveLength);
+
+    printf("TESTPA3: %s\n", message);
+
+    free(message);
+    message = NULL;
+
+    close(outputDevice);
+}
+
+int deviceWrite(char *stringToSend)
+{
+    int inputDevice  = open("/dev/pa3_input", O_RDWR);
+    int returnValue, stringLength;
+
+    if (inputDevice < 0)
+    {
+        perror("TESTPA3: Failed to open the input device.\n");
+
+        return errno;
+    }
+
+    printf("TESTPA3: Enter a string to write:\n");
+    printf("TESTPA3: ");
+
+    fgets(stringToSend, BUFFER_LENGTH, stdin);
+    strtok(stringToSend, "\n");
+    stringLength = strlen(stringToSend) >= BUFFER_LENGTH ? BUFFER_LENGTH : strlen(stringToSend);
+
+    returnValue = write(inputDevice, stringToSend, stringLength);
+
+    close(inputDevice);
+}
+
 int main(void)
 {
     char inputChoice, c, receiveLength;
-    int inputDevice, outputDevice, stringLength, returnValue;
     char *stringToSend, *messageLength, *message;
     char *ptr;
 
@@ -20,23 +74,6 @@ int main(void)
 
     stringToSend  = malloc(sizeof(char) * BUFFER_LENGTH);
     messageLength = malloc(sizeof(char) * BUFFER_LENGTH);
-
-    inputDevice  = open("/dev/pa3_input", O_RDWR);
-    outputDevice = open("/dev/pa3_output", O_RDWR);
-
-    if (inputDevice < 0)
-    {
-        perror("TESTPA3: Failed to open the input device.\n");
-
-        return errno;
-    }
-
-    if (outputDevice < 0)
-    {
-        perror("TESTPA3: Failed to open the output device.\n");
-
-        return errno;
-    }
 
     printf("TESTPA3: Type W to write.\n");
     printf("TESTPA3: Type R to read.\n");
@@ -53,34 +90,11 @@ int main(void)
         {
             case 'w':
             case 'W':
-                printf("TESTPA3: Enter a string to write:\n");
-                printf("TESTPA3: ");
-
-                fgets(stringToSend, BUFFER_LENGTH, stdin);
-                strtok(stringToSend, "\n");
-                stringLength = strlen(stringToSend) >= BUFFER_LENGTH ? BUFFER_LENGTH : strlen(stringToSend);
-
-                returnValue = write(inputDevice, stringToSend, stringLength);
-
+                deviceWrite(stringToSend);
                 break;
             case 'r':
             case 'R':
-                message = calloc(BUFFER_LENGTH, sizeof(char));
-
-                printf("TESTPA3: How many bytes would you like to read?\n");
-                printf("TESTPA3: %s\n", message);
-                printf("TESTPA3: ");
-
-                fgets(messageLength, BUFFER_LENGTH, stdin);
-                receiveLength = atoi(messageLength);
-
-                returnValue = read(outputDevice, message, receiveLength);
-
-                printf("TESTPA3: %s\n", message);
-
-                free(message);
-                message = NULL;
-
+                deviceRead(message, messageLength);
                 break;
             case 'q':
             case 'Q':
@@ -92,8 +106,8 @@ int main(void)
         }
     } while (inputChoice != 'Q' && inputChoice != 'q');
 
-    // free(stringToSend);
-    // free(messageLength);
+    free(stringToSend);
+    free(messageLength);
 
     if (message != NULL)
     {
