@@ -28,7 +28,10 @@ static struct class *pa3InputClass = NULL;
 static struct device *pa3InputDevice = NULL;
 static int numberOfOpens = 0;
 static char receivedMessage[BUFFER_LENGTH] = {0};
+
+/* MUTEX LOCK */
 static DEFINE_MUTEX(pa3_mutex);
+EXPORT_SYMBOL(pa3_mutex);
 
 /* EXTERNAL VARIABLES */
 static int messageLen;

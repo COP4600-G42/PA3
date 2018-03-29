@@ -27,7 +27,9 @@ static int majorNumber;
 static struct class *pa3OutputClass = NULL;
 static struct device *pa3OutputDevice = NULL;
 static int numberOfOpens = 0;
-static DEFINE_MUTEX(pa3_mutex);
+
+/* MUTEX LOCK */
+extern mutex pa3_mutex;
 
 /* EXTERNAL VARIABLES */
 extern int messageLen;
@@ -80,8 +82,6 @@ int init_module(void)
         return PTR_ERR(pa3OutputDevice);
     }
 
-    mutex_init(&pa3_mutex);
-
     printk(KERN_INFO "PA3 OUTPUT: Device created successfully.\n");
 
     return 0;
@@ -89,8 +89,6 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-    mutex_destroy(&pa3_mutex);
-
     device_destroy(pa3OutputClass, MKDEV(majorNumber, 0));
     class_unregister(pa3OutputClass);
     class_destroy(pa3OutputClass);
