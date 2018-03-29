@@ -29,7 +29,7 @@ static struct device *pa3OutputDevice = NULL;
 static int numberOfOpens = 0;
 
 /* MUTEX LOCK */
-extern mutex pa3_mutex;
+extern struct mutex pa3_mutex;
 
 /* EXTERNAL VARIABLES */
 extern int messageLen;

@@ -30,7 +30,7 @@ static int numberOfOpens = 0;
 static char receivedMessage[BUFFER_LENGTH] = {0};
 
 /* MUTEX LOCK */
-static DEFINE_MUTEX(pa3_mutex);
+struct mutex pa3_mutex;
 EXPORT_SYMBOL(pa3_mutex);
 
 /* EXTERNAL VARIABLES */
