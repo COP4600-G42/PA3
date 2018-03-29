@@ -28,7 +28,7 @@ static struct class *pa3InputClass = NULL;
 static struct device *pa3InputDevice = NULL;
 static int numberOfOpens = 0;
 static char receivedMessage[BUFFER_LENGTH] = {0};
-static DEFINE_MUTEX(pa3_input_mutex);
+static DEFINE_MUTEX(pa3_mutex);
 
 /* EXTERNAL VARIABLES */
 static int messageLen;
@@ -83,7 +83,7 @@ int init_module(void)
         return PTR_ERR(pa3InputDevice);
     }
 
-    mutex_init(&pa3_input_mutex);
+    mutex_init(&pa3_mutex);
 
     printk(KERN_INFO "PA3  INPUT: Device created successfully.\n");
 
@@ -92,7 +92,7 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-    mutex_destroy(&pa3_input_mutex);
+    mutex_destroy(&pa3_mutex);
 
     device_destroy(pa3InputClass, MKDEV(majorNumber, 0));
     class_unregister(pa3InputClass);
@@ -106,7 +106,7 @@ static int dev_open(struct inode *inodep, struct file *filep)
 {
     printk(KERN_INFO "\nPA3  INPUT: OPEN Full string: %s\n", message);
 
-    if (!mutex_trylock(&pa3_input_mutex))
+    if (!mutex_trylock(&pa3_mutex))
     {
         printk(KERN_ALERT "PA3  INPUT: Device already in use by another process.\n");
 
@@ -166,7 +166,7 @@ static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, lof
 
 static int dev_release(struct inode *inodep, struct file *filep)
 {
-    mutex_unlock(&pa3_input_mutex);
+    mutex_unlock(&pa3_mutex);
 
     printk(KERN_INFO "\nPA3  INPUT: RELEASE Full string: %s\n", message);
 
