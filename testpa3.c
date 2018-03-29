@@ -22,8 +22,7 @@ int deviceRead(char *message, char *messageLength)
     message = calloc(BUFFER_LENGTH, sizeof(char));
 
     printf("TESTPA3: How many bytes would you like to read?\n");
-    printf("TESTPA3: %s\n", message);
-    printf("TESTPA3: ");
+    printf("TESTPA3: %s", message);
 
     fgets(messageLength, BUFFER_LENGTH, stdin);
     receiveLength = atoi(messageLength);
